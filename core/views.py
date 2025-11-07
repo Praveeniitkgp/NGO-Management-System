@@ -70,12 +70,15 @@ def admin_login(request):
         else:
             from .models import Admin
             try:
-                admin = Admin.objects.get(email=email, password_plaintext=password)
-                request.session['admin_authenticated'] = True
-                request.session['admin_id'] = admin.id
-                request.session['admin_email'] = admin.email
-                request.session['last_activity'] = datetime.now().isoformat()
-                return redirect('admin_dashboard')
+                admin = Admin.objects.get(email=email)
+                if admin.check_password(password):
+                    request.session['admin_authenticated'] = True
+                    request.session['admin_id'] = admin.id
+                    request.session['admin_email'] = admin.email
+                    request.session['last_activity'] = datetime.now().isoformat()
+                    return redirect('admin_dashboard')
+                else:
+                    messages.error(request, 'Invalid email or password. Please try again.')
             except Admin.DoesNotExist:
                 messages.error(request, 'Invalid email or password. Please try again.')
             except Exception as e:
@@ -246,8 +249,7 @@ def admin_reset_password(request):
             if password_errors:
                 messages.error(request, 'Password validation failed: ' + ' '.join(password_errors))
             else:
-                # Update password
-                admin.password_plaintext = new_password
+                admin.set_password(new_password)
                 admin.save()
                 
                 # Clear all password reset session data
@@ -886,15 +888,16 @@ def donor_registration(request):
                         messages.error(request, 'Security answer is required.')
                     else:
                         # All validations passed, create donor
-                        RegisteredDonor.objects.create(
+                        donor = RegisteredDonor(
                             name=name,
                             email=email,
                             mobile_number=mobile_number,
                             address=address,
-                            password_plaintext=password,
                             security_question=security_question,
-                            security_answer=security_answer.lower().strip()  # Store as lowercase for case-insensitive comparison
+                            security_answer=security_answer.lower().strip()
                         )
+                        donor.set_password(password)
+                        donor.save()
                         messages.success(request, 'Registration successful! Welcome to BrightFutures. You will be redirected to the login page shortly.')
                         return redirect('donor_login')
     
@@ -914,55 +917,42 @@ def donor_login(request):
         if not email or not password:
             messages.error(request, 'Please provide both email and password.')
         else:
+            from .models import RegisteredDonor
             try:
-                # Use raw query to avoid InvalidOperation errors when reading invalid Decimal values
-                from django.db import connection
-                with connection.cursor() as cursor:
-                    cursor.execute("""
-                        SELECT id, name, email, mobile_number, address, password_plaintext,
-                               donation_frequency, amount_pledged, total_donated, 
-                               desired_donation, last_donation_date, created_at
-                        FROM core_registereddonor
-                        WHERE email = %s AND password_plaintext = %s
-                    """, [email, password])
-                    row = cursor.fetchone()
-                    
-                    if row:
-                        donor_id = row[0]
-                        # Check if desired_donation has invalid value and fix it
-                        try:
-                            desired_donation_val = row[9]  # desired_donation column
-                            if desired_donation_val:
-                                # Try to convert to Decimal to check if valid
-                                try:
-                                    desired_decimal = Decimal(str(desired_donation_val))
-                                    if desired_decimal > Decimal('1000000'):
-                                        # Fix invalid value
-                                        with connection.cursor() as fix_cursor:
-                                            fix_cursor.execute("""
-                                                UPDATE core_registereddonor
-                                                SET desired_donation = 0
-                                                WHERE id = %s
-                                            """, [donor_id])
-                                except (ValueError, InvalidOperation, TypeError):
-                                    # Fix invalid value
+                donor = RegisteredDonor.objects.get(email=email)
+                
+                if donor.check_password(password):
+                    from django.db import connection
+                    donor_id = donor.id
+                    try:
+                        desired_donation_val = donor.desired_donation
+                        if desired_donation_val:
+                            try:
+                                desired_decimal = Decimal(str(desired_donation_val))
+                                if desired_decimal > Decimal('1000000'):
                                     with connection.cursor() as fix_cursor:
                                         fix_cursor.execute("""
                                             UPDATE core_registereddonor
                                             SET desired_donation = 0
                                             WHERE id = %s
                                         """, [donor_id])
-                        except (IndexError, TypeError):
-                            pass
-                        
-                        # Now fetch the donor normally (it should be safe now)
-                        donor = RegisteredDonor.objects.get(id=donor_id)
-                        request.session['donor_id'] = donor.id
-                        request.session['donor_authenticated'] = True
-                        request.session['last_activity'] = datetime.now().isoformat()
-                        return redirect('donor_dashboard')
-                    else:
-                        messages.error(request, 'Invalid email or password. Please try again.')
+                            except (ValueError, InvalidOperation, TypeError):
+                                with connection.cursor() as fix_cursor:
+                                    fix_cursor.execute("""
+                                        UPDATE core_registereddonor
+                                        SET desired_donation = 0
+                                        WHERE id = %s
+                                    """, [donor_id])
+                    except (ValueError, InvalidOperation, TypeError):
+                        pass
+                    
+                    donor = RegisteredDonor.objects.get(id=donor_id)
+                    request.session['donor_id'] = donor.id
+                    request.session['donor_authenticated'] = True
+                    request.session['last_activity'] = datetime.now().isoformat()
+                    return redirect('donor_dashboard')
+                else:
+                    messages.error(request, 'Invalid email or password. Please try again.')
             except RegisteredDonor.DoesNotExist:
                 messages.error(request, 'Invalid email or password. Please try again.')
             except Exception as e:
@@ -1138,8 +1128,7 @@ def donor_reset_password(request):
             if password_errors:
                 messages.error(request, 'Password validation failed: ' + ' '.join(password_errors))
             else:
-                # Update password
-                donor.password_plaintext = new_password
+                donor.set_password(new_password)
                 donor.save()
                 
                 # Clear all password reset session data
@@ -1309,7 +1298,7 @@ def donor_edit_profile(request):
             
             # Update password only if a new one is provided
             if new_password:
-                donor.password_plaintext = new_password
+                donor.set_password(new_password)
             # If password is empty, keep the current password (don't update)
             
             # Update security question (required)

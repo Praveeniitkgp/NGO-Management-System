@@ -1,11 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password, check_password, is_password_usable
 
 
 class Admin(models.Model):
     email = models.EmailField(unique=True)
     mobile_number = models.CharField(max_length=20, blank=True, null=True, help_text="Mobile number with country code (e.g., +91XXXXXXXXXX)")
-    password_plaintext = models.CharField(max_length=100)  # In production, use hashed passwords
+    password_plaintext = models.CharField(max_length=200)
     name = models.CharField(max_length=200, default='Admin')
     security_question = models.CharField(max_length=200, default='What is the name of your first pet?', help_text="Security question for password recovery")
     security_answer = models.CharField(max_length=100, default='admin123', help_text="Answer to security question (case-insensitive)")
@@ -15,6 +16,20 @@ class Admin(models.Model):
         ordering = ['-created_at']
         verbose_name = 'Admin'
         verbose_name_plural = 'Admins'
+    
+    def set_password(self, raw_password):
+        self.password_plaintext = make_password(raw_password)
+    
+    def check_password(self, raw_password):
+        if not self.password_plaintext or not raw_password:
+            return False
+        # Check if password is hashed
+        if is_password_usable(self.password_plaintext):
+            # Password is hashed, use Django's check_password
+            return check_password(raw_password, self.password_plaintext)
+        else:
+            # Password is still in plaintext (backward compatibility)
+            return self.password_plaintext == raw_password
     
     def __str__(self):
         return self.email
@@ -77,7 +92,7 @@ class RegisteredDonor(models.Model):
     email = models.EmailField(unique=True)
     mobile_number = models.CharField(max_length=20)
     address = models.TextField()
-    password_plaintext = models.CharField(max_length=100)  # In production, use hashed passwords
+    password_plaintext = models.CharField(max_length=200)
     security_question = models.CharField(max_length=200, blank=True, null=True, help_text="Security question for password recovery")
     security_answer = models.CharField(max_length=100, blank=True, null=True, help_text="Answer to security question (case-insensitive)")
     donation_frequency = models.CharField(
@@ -98,6 +113,20 @@ class RegisteredDonor(models.Model):
     
     class Meta:
         ordering = ['-created_at']
+    
+    def set_password(self, raw_password):
+        self.password_plaintext = make_password(raw_password)
+    
+    def check_password(self, raw_password):
+        if not self.password_plaintext or not raw_password:
+            return False
+        # Check if password is hashed
+        if is_password_usable(self.password_plaintext):
+            # Password is hashed, use Django's check_password
+            return check_password(raw_password, self.password_plaintext)
+        else:
+            # Password is still in plaintext (backward compatibility)
+            return self.password_plaintext == raw_password
     
     def __str__(self):
         return self.name

@@ -3,7 +3,18 @@ import os
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-ngoms-dev-key-change-in-production')
+SECRET_KEY = os.getenv('SECRET_KEY')
+if not SECRET_KEY:
+    DEBUG_MODE = os.getenv('DEBUG', 'False').lower() == 'true'
+    if DEBUG_MODE:
+        SECRET_KEY = 'django-insecure-ngoms-dev-key-change-in-production'
+    else:
+        import sys
+        if len(sys.argv) > 1 and any(cmd in sys.argv for cmd in ['runserver', 'migrate', 'shell', 'check', 'collectstatic']):
+            SECRET_KEY = 'django-insecure-ngoms-dev-key-change-in-production'
+        else:
+            raise ValueError("SECRET_KEY must be set in environment variables for production")
+
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '').split(',') if os.getenv('ALLOWED_HOSTS') else ['praveenpatel.dev', 'www.praveenpatel.dev', '139.59.10.76', 'localhost', '127.0.0.1']
@@ -89,6 +100,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 SESSION_COOKIE_AGE = 3600
 SESSION_SAVE_EVERY_REQUEST = True
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_HTTPONLY = True
+
+if not DEBUG:
+    SECURE_SSL_REDIRECT = True
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+    X_FRAME_OPTIONS = 'DENY'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'

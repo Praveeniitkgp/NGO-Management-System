@@ -81,11 +81,40 @@ supervisorctl reread
 supervisorctl update
 supervisorctl start ngo-management
 
+echo "Installing Certbot for SSL..."
+apt install -y certbot python3-certbot-nginx
+
 echo "Configuring Nginx..."
 cat > /etc/nginx/sites-available/ngo-management << 'NGINXEOF'
 server {
     listen 80;
-    server_name 139.59.10.76;
+    server_name praveenpatel.dev www.praveenpatel.dev 139.59.10.76;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    server_name praveenpatel.dev www.praveenpatel.dev 139.59.10.76;
+
+    ssl_certificate /etc/letsencrypt/live/praveenpatel.dev/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/praveenpatel.dev/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 10m;
+
+    add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header X-Frame-Options "DENY" always;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
 
     location /static/ {
         alias /var/www/ngo-management/staticfiles/;
@@ -97,6 +126,8 @@ server {
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Port $server_port;
     }
 }
 NGINXEOF
@@ -105,6 +136,14 @@ ln -sf /etc/nginx/sites-available/ngo-management /etc/nginx/sites-enabled/
 rm -f /etc/nginx/sites-enabled/default
 nginx -t
 systemctl restart nginx
+
+echo "Obtaining SSL certificate..."
+SSL_EMAIL="${SSL_EMAIL:-your-email@example.com}"
+certbot --nginx -d praveenpatel.dev -d www.praveenpatel.dev --non-interactive --agree-tos --email "$SSL_EMAIL" --redirect
+
+echo "Setting up automatic certificate renewal..."
+systemctl enable certbot.timer
+systemctl start certbot.timer
 
 echo "Configuring firewall..."
 ufw allow 22/tcp

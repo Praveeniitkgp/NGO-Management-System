@@ -45,24 +45,54 @@ ssh ${SERVER_USER}@${SERVER_IP} << 'ENDSSH'
     echo "Migrations completed"
     echo ""
     
-    echo "Step 5: Updating admin credentials..."
+    echo "Step 5: Hashing existing passwords..."
     python manage.py shell << 'PYTHON_SCRIPT'
+from core.models import Admin, RegisteredDonor
+from django.contrib.auth.hashers import is_password_usable
+
+admin_count = 0
+donor_count = 0
+
+for admin in Admin.objects.all():
+    if admin.password_plaintext and not is_password_usable(admin.password_plaintext):
+        admin.set_password(admin.password_plaintext)
+        admin.save()
+        admin_count += 1
+
+for donor in RegisteredDonor.objects.all():
+    if donor.password_plaintext and not is_password_usable(donor.password_plaintext):
+        donor.set_password(donor.password_plaintext)
+        donor.save()
+        donor_count += 1
+
+print(f'Hashed {admin_count} admin password(s)')
+print(f'Hashed {donor_count} donor password(s)')
+PYTHON_SCRIPT
+    echo "Passwords hashed"
+    echo ""
+    
+    echo "Step 6: Updating admin credentials..."
+    python manage.py shell << 'PYTHON_SCRIPT'
+import os
 from core.models import Admin
-Admin.objects.filter(email='admin@brightfutures@gmail.com').delete()
-admin = Admin.objects.create(
+admin_email = os.getenv('ADMIN_EMAIL', 'admin@brightfutures@gmail.com')
+admin_password = os.getenv('ADMIN_PASSWORD', 'CHANGE_THIS_PASSWORD')
+admin_security_answer = os.getenv('ADMIN_SECURITY_ANSWER', 'CHANGE_THIS_ANSWER')
+Admin.objects.filter(email=admin_email).delete()
+admin = Admin(
     name='Admin',
-    email='admin@brightfutures@gmail.com',
-    password_plaintext='Myadminme@110',
+    email=admin_email,
     security_question='What is the name of your first pet?',
-    security_answer='memyself'
+    security_answer=admin_security_answer
 )
+admin.set_password(admin_password)
+admin.save()
 print(f'Admin created: {admin.email}')
-print(f'   Security Answer: {admin.security_answer}')
 PYTHON_SCRIPT
     echo "Admin credentials updated"
     echo ""
     
-    echo "Step 6: Updating existing donors with default security questions..."
+    echo "Step 7: Updating existing donors with default security questions..."
     python manage.py shell << 'PYTHON_SCRIPT'
 from core.models import RegisteredDonor
 donors = RegisteredDonor.objects.filter(security_question__isnull=True) | RegisteredDonor.objects.filter(security_question='')
@@ -78,12 +108,20 @@ PYTHON_SCRIPT
     echo "Donors updated"
     echo ""
     
-    echo "Step 7: Collecting static files..."
+    echo "Step 8: Collecting static files..."
     python manage.py collectstatic --noinput
     echo "Static files collected"
     echo ""
     
-    echo "Step 8: Restarting services..."
+    echo "Step 9: Verifying all accounts..."
+    set -a
+    source .env 2>/dev/null || true
+    set +a
+    python verify_all_accounts.py
+    echo "Account verification completed"
+    echo ""
+    
+    echo "Step 10: Restarting services..."
     sudo supervisorctl restart ngo-management
     sleep 2
     echo "Gunicorn restarted"
@@ -108,10 +146,8 @@ if [ $? -eq 0 ]; then
     echo ""
     echo "Next Steps:"
     echo "   1. Visit: https://praveenpatel.dev"
-    echo "   2. Test admin login:"
-    echo "      Email: admin@brightfutures@gmail.com"
-    echo "      Password: Myadminme@110"
-    echo "   3. Test forgot password (security answer: memyself)"
+    echo "   2. Test admin login with credentials from .env file"
+    echo "   3. Test forgot password functionality"
     echo ""
     echo "Your website is now live with all updates!"
 else

@@ -88,3 +88,5 @@ credentials/
 credentials.json
 token.pickle
 *.pickle
+.env.backup
+generate_refresh_token.py
