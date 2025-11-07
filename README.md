@@ -2,7 +2,7 @@
 
 A comprehensive web-based management system for NGOs to manage students, donors, inventory, finances, and donations efficiently.
 
-## 🌐 Live Website
+## Live Website
 
 **The application is live and accessible at:** [https://praveenpatel.dev](https://praveenpatel.dev)
 

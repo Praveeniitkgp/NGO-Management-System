@@ -45,16 +45,16 @@ def test_password_hashing():
             else:
                 unhashed_donors.append(donor.email)
     
-    print(f"\n✓ Hashed Admin Passwords: {admin_count}")
-    print(f"✓ Hashed Donor Passwords: {donor_count}")
+    print(f"\n[OK] Hashed Admin Passwords: {admin_count}")
+    print(f"[OK] Hashed Donor Passwords: {donor_count}")
     
     if unhashed_admins:
-        print(f"\n⚠ WARNING: {len(unhashed_admins)} admin(s) with unhashed passwords:")
+        print(f"\n[!] WARNING: {len(unhashed_admins)} admin(s) with unhashed passwords:")
         for email in unhashed_admins:
             print(f"  - {email}")
     
     if unhashed_donors:
-        print(f"\n⚠ WARNING: {len(unhashed_donors)} donor(s) with unhashed passwords:")
+        print(f"\n[!] WARNING: {len(unhashed_donors)} donor(s) with unhashed passwords:")
         for email in unhashed_donors[:5]:  # Show first 5
             print(f"  - {email}")
         if len(unhashed_donors) > 5:
@@ -79,20 +79,20 @@ def test_login_functionality():
             admin.save()
             
             if admin.check_password(test_password):
-                print("✓ Admin password check works correctly")
+                print("[OK] Admin password check works correctly")
                 test_results.append(True)
             else:
-                print("✗ Admin password check failed")
+                print("[X] Admin password check failed")
                 test_results.append(False)
             
             if not admin.check_password("WrongPassword"):
-                print("✓ Admin password rejection works correctly")
+                print("[OK] Admin password rejection works correctly")
                 test_results.append(True)
             else:
-                print("✗ Admin password rejection failed")
+                print("[X] Admin password rejection failed")
                 test_results.append(False)
     except Exception as e:
-        print(f"✗ Admin login test failed: {e}")
+        print(f"[X] Admin login test failed: {e}")
         test_results.append(False)
     
     # Test donor login
@@ -104,20 +104,20 @@ def test_login_functionality():
             donor.save()
             
             if donor.check_password(test_password):
-                print("✓ Donor password check works correctly")
+                print("[OK] Donor password check works correctly")
                 test_results.append(True)
             else:
-                print("✗ Donor password check failed")
+                print("[X] Donor password check failed")
                 test_results.append(False)
             
             if not donor.check_password("WrongPassword"):
-                print("✓ Donor password rejection works correctly")
+                print("[OK] Donor password rejection works correctly")
                 test_results.append(True)
             else:
-                print("✗ Donor password rejection failed")
+                print("[X] Donor password rejection failed")
                 test_results.append(False)
     except Exception as e:
-        print(f"✗ Donor login test failed: {e}")
+        print(f"[X] Donor login test failed: {e}")
         test_results.append(False)
     
     return all(test_results)
@@ -140,27 +140,27 @@ def test_password_reset():
             admin.save()
             
             if admin.password_plaintext != old_password_hash:
-                print("✓ Admin password reset updates hash")
+                print("[OK] Admin password reset updates hash")
                 test_results.append(True)
             else:
-                print("✗ Admin password reset did not update hash")
+                print("[X] Admin password reset did not update hash")
                 test_results.append(False)
             
             if admin.check_password(new_password):
-                print("✓ Admin can login with new password")
+                print("[OK] Admin can login with new password")
                 test_results.append(True)
             else:
-                print("✗ Admin cannot login with new password")
+                print("[X] Admin cannot login with new password")
                 test_results.append(False)
             
             if not admin.check_password("OldPassword"):
-                print("✓ Admin cannot login with old password")
+                print("[OK] Admin cannot login with old password")
                 test_results.append(True)
             else:
-                print("✗ Admin can still login with old password")
+                print("[X] Admin can still login with old password")
                 test_results.append(False)
     except Exception as e:
-        print(f"✗ Admin password reset test failed: {e}")
+        print(f"[X] Admin password reset test failed: {e}")
         test_results.append(False)
     
     try:
@@ -173,20 +173,20 @@ def test_password_reset():
             donor.save()
             
             if donor.password_plaintext != old_password_hash:
-                print("✓ Donor password reset updates hash")
+                print("[OK] Donor password reset updates hash")
                 test_results.append(True)
             else:
-                print("✗ Donor password reset did not update hash")
+                print("[X] Donor password reset did not update hash")
                 test_results.append(False)
             
             if donor.check_password(new_password):
-                print("✓ Donor can login with new password")
+                print("[OK] Donor can login with new password")
                 test_results.append(True)
             else:
-                print("✗ Donor cannot login with new password")
+                print("[X] Donor cannot login with new password")
                 test_results.append(False)
     except Exception as e:
-        print(f"✗ Donor password reset test failed: {e}")
+        print(f"[X] Donor password reset test failed: {e}")
         test_results.append(False)
     
     return all(test_results)
@@ -203,34 +203,34 @@ def test_environment_variables():
     
     # Check SECRET_KEY
     if settings.SECRET_KEY and settings.SECRET_KEY != 'django-insecure-ngoms-dev-key-change-in-production':
-        print("✓ SECRET_KEY is set and not using default")
+        print("[OK] SECRET_KEY is set and not using default")
         test_results.append(True)
     else:
-        print("⚠ SECRET_KEY is using default or not set properly")
+        print("[!] SECRET_KEY is using default or not set properly")
         test_results.append(False)
     
     # Check DEBUG
     if not settings.DEBUG:
-        print("✓ DEBUG is set to False (production mode)")
+        print("[OK] DEBUG is set to False (production mode)")
         test_results.append(True)
     else:
-        print("⚠ DEBUG is set to True (development mode)")
+        print("[!] DEBUG is set to True (development mode)")
         test_results.append(False)
     
     # Check security settings
     if not settings.DEBUG:
         if hasattr(settings, 'SECURE_SSL_REDIRECT') and settings.SECURE_SSL_REDIRECT:
-            print("✓ SECURE_SSL_REDIRECT is enabled")
+            print("[OK] SECURE_SSL_REDIRECT is enabled")
             test_results.append(True)
         else:
-            print("⚠ SECURE_SSL_REDIRECT is not enabled")
+            print("[!] SECURE_SSL_REDIRECT is not enabled")
             test_results.append(False)
         
         if hasattr(settings, 'SESSION_COOKIE_SECURE') and settings.SESSION_COOKIE_SECURE:
-            print("✓ SESSION_COOKIE_SECURE is enabled")
+            print("[OK] SESSION_COOKIE_SECURE is enabled")
             test_results.append(True)
         else:
-            print("⚠ SESSION_COOKIE_SECURE is not enabled")
+            print("[!] SESSION_COOKIE_SECURE is not enabled")
             test_results.append(False)
     
     return all(test_results)
@@ -253,17 +253,17 @@ def main():
     print("=" * 60)
     
     for test_name, result in results:
-        status = "✓ PASS" if result else "✗ FAIL"
+        status = "[OK] PASS" if result else "[X] FAIL"
         print(f"{status}: {test_name}")
     
     all_passed = all(result for _, result in results)
     
     print("\n" + "=" * 60)
     if all_passed:
-        print("✓ All security tests passed!")
+        print("[OK] All security tests passed!")
         return 0
     else:
-        print("✗ Some security tests failed. Please review the output above.")
+        print("[X] Some security tests failed. Please review the output above.")
         return 1
 
 if __name__ == '__main__':

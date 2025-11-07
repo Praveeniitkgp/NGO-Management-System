@@ -54,17 +54,17 @@ def verify_all_accounts():
         
         if not admin.password_plaintext:
             admin_issues.append(f"{admin.email}: No password set")
-            print("  ✗ Password: NOT SET")
+            print("  [X] Password: NOT SET")
         elif is_password_usable(admin.password_plaintext):
-            print("  ✓ Password: HASHED (secure)")
+            print("  [OK] Password: HASHED (secure)")
         else:
             admin_issues.append(f"{admin.email}: Password not hashed")
-            print("  ✗ Password: NOT HASHED (needs fixing)")
+            print("  [X] Password: NOT HASHED (needs fixing)")
             # Fix it
             old_password = admin.password_plaintext
             admin.set_password(old_password)
             admin.save()
-            print("  ✓ Fixed: Password hashed")
+            print("  [OK] Fixed: Password hashed")
         
         print(f"  Security Question: {admin.security_question}")
         print(f"  Security Answer: {'Set' if admin.security_answer else 'Not set'}")
@@ -75,7 +75,7 @@ def verify_all_accounts():
         for issue in admin_issues:
             print(f"  - {issue}")
     else:
-        print("✓ All admin accounts are properly configured")
+        print("[OK] All admin accounts are properly configured")
     
     # Verify Donors
     print("\n" + "=" * 60)
@@ -97,21 +97,21 @@ def verify_all_accounts():
         if not donor.password_plaintext:
             donor_issues.append(f"{donor.email}: No password set")
             if donor_count <= 5:
-                print("  ✗ Password: NOT SET")
+                print("  [X] Password: NOT SET")
         elif is_password_usable(donor.password_plaintext):
             if donor_count <= 5:
-                print("  ✓ Password: HASHED (secure)")
+                print("  [OK] Password: HASHED (secure)")
         else:
             unhashed_count += 1
             donor_issues.append(f"{donor.email}: Password not hashed")
             if donor_count <= 5:
-                print("  ✗ Password: NOT HASHED (fixing...)")
+                print("  [X] Password: NOT HASHED (fixing...)")
             # Fix it
             old_password = donor.password_plaintext
             donor.set_password(old_password)
             donor.save()
             if donor_count <= 5:
-                print("  ✓ Fixed: Password hashed")
+                print("  [OK] Fixed: Password hashed")
         
         if donor_count <= 5:
             print(f"  Security Question: {donor.security_question or 'Not set'}")
@@ -129,7 +129,7 @@ def verify_all_accounts():
         if len(donor_issues) > 10:
             print(f"  ... and {len(donor_issues) - 10} more")
     else:
-        print("✓ All donor accounts are properly configured")
+        print("[OK] All donor accounts are properly configured")
     
     # Test Login Functionality
     print("\n" + "=" * 60)
@@ -143,25 +143,25 @@ def verify_all_accounts():
         import os
         test_password = os.getenv('ADMIN_PASSWORD', 'test')
         if admin.check_password(test_password):
-            print(f"✓ Admin login works: {admin.email}")
+            print(f"[OK] Admin login works: {admin.email}")
         else:
-            print(f"⚠ Admin login test: Password check failed")
+            print(f"[!] Admin login test: Password check failed")
             print("  (This is OK if password is different or not set in env)")
     else:
-        print("✗ No admin account found")
+        print("[X] No admin account found")
     
     # Test donor login
     donor = RegisteredDonor.objects.first()
     if donor and donor.password_plaintext:
         if is_password_usable(donor.password_plaintext):
-            print(f"✓ Donor login ready: {donor.email}")
+            print(f"[OK] Donor login ready: {donor.email}")
             print("  (Password is hashed, login will work)")
         else:
-            print(f"⚠ Donor login: Password needs hashing")
+            print(f"[!] Donor login: Password needs hashing")
     elif donor:
-        print(f"⚠ Donor {donor.email}: No password set")
+        print(f"[!] Donor {donor.email}: No password set")
     else:
-        print("⚠ No donor accounts found")
+        print("[!] No donor accounts found")
     
     # Test Password Reset
     print("\n" + "=" * 60)
@@ -175,14 +175,14 @@ def verify_all_accounts():
         admin.save()
         
         if admin.password_plaintext != old_hash:
-            print("✓ Admin password reset: Updates hash correctly")
+            print("[OK] Admin password reset: Updates hash correctly")
         else:
-            print("✗ Admin password reset: Hash not updated")
+            print("[X] Admin password reset: Hash not updated")
         
         if admin.check_password(test_password):
-            print("✓ Admin password reset: New password works")
+            print("[OK] Admin password reset: New password works")
         else:
-            print("✗ Admin password reset: New password doesn't work")
+            print("[X] Admin password reset: New password doesn't work")
         
         # Restore original password from env or skip
         import os
@@ -190,9 +190,9 @@ def verify_all_accounts():
         if original_pwd:
             admin.set_password(original_pwd)
             admin.save()
-            print("✓ Admin password restored")
+            print("[OK] Admin password restored")
         else:
-            print("⚠ Admin password not restored (ADMIN_PASSWORD not set in env)")
+            print("[!] Admin password not restored (ADMIN_PASSWORD not set in env)")
     
     if donor and donor.password_plaintext:
         old_hash = donor.password_plaintext
@@ -201,20 +201,20 @@ def verify_all_accounts():
         donor.save()
         
         if donor.password_plaintext != old_hash:
-            print("✓ Donor password reset: Updates hash correctly")
+            print("[OK] Donor password reset: Updates hash correctly")
         else:
-            print("✗ Donor password reset: Hash not updated")
+            print("[X] Donor password reset: Hash not updated")
         
         if donor.check_password(test_password):
-            print("✓ Donor password reset: New password works")
+            print("[OK] Donor password reset: New password works")
         else:
-            print("✗ Donor password reset: New password doesn't work")
+            print("[X] Donor password reset: New password doesn't work")
         
         # Restore original if it was hashed
         if is_password_usable(old_hash):
             donor.password_plaintext = old_hash
             donor.save()
-            print("✓ Donor password restored")
+            print("[OK] Donor password restored")
     
     # Final Summary
     print("\n" + "=" * 60)
@@ -236,7 +236,7 @@ def verify_all_accounts():
         print("✅ Password reset is working")
         return 0
     else:
-        print("\n⚠ Some accounts may need attention")
+        print("\n[!] Some accounts may need attention")
         return 1
 
 if __name__ == '__main__':
@@ -244,7 +244,7 @@ if __name__ == '__main__':
         exit_code = verify_all_accounts()
         sys.exit(exit_code)
     except Exception as e:
-        print(f"\n✗ Error during verification: {e}")
+        print(f"\n[X] Error during verification: {e}")
         import traceback
         traceback.print_exc()
         sys.exit(1)
