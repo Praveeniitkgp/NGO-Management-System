@@ -1,0 +1,82 @@
+<div class="bg-gray-50 min-h-screen font-sans flex flex-col">
+  <!-- Header -->
+  <header class="bg-white shadow-md sticky top-0 z-50">
+    <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+      <a routerLink="/home" class="flex items-center space-x-2">
+        <div class="w-10 h-10">
+           <app-3d-logo></app-3d-logo>
+        </div>
+        <span class="text-xl font-bold text-gray-800 tracking-wide">SponsorAChild</span>
+      </a>
+      <div class="flex items-center space-x-4">
+        <a routerLink="/home" class="text-gray-600 hover:text-blue-600 font-medium">Home</a>
+        <a routerLink="/admin-login" class="text-gray-600 hover:text-blue-600 font-medium">Admin Login</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <div class="bg-white shadow-2xl rounded-2xl p-8 space-y-6">
+        <div class="text-center">
+          <h2 class="text-3xl font-extrabold text-gray-900">Donor Portal</h2>
+          <p class="mt-2 text-sm text-gray-600">Sign in to manage your donations. (Hint: donor123)</p>
+        </div>
+        
+        <form (ngSubmit)="login()" class="space-y-6">
+          <div>
+            <label for="email" class="sr-only">Email</label>
+            <input 
+              id="email" 
+              name="email" 
+              type="email" 
+              [ngModel]="email()"
+              (ngModelChange)="email.set($event)"
+              required 
+              class="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm transition duration-300" 
+              placeholder="Email address">
+          </div>
+          <div>
+            <label for="password" class="sr-only">Password</label>
+            <input 
+              id="password" 
+              name="password" 
+              type="password" 
+              [ngModel]="password()"
+              (ngModelChange)="password.set($event)"
+              required 
+              class="appearance-none rounded-lg relative block w-full px-4 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm transition duration-300" 
+              placeholder="Password">
+          </div>
+
+          @if (errorMessage()) {
+            <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-3 rounded-md" role="alert">
+              <p>{{ errorMessage() }}</p>
+            </div>
+          }
+
+          <div>
+            <button type="submit" class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105 duration-300">
+              Sign in
+            </button>
+          </div>
+        </form>
+
+        <div class="text-center text-sm">
+          <a routerLink="/register-donor" class="font-medium text-blue-600 hover:text-blue-500 transition duration-300">
+            Don't have an account? Register here.
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-8">
+    <div class="container mx-auto px-6 text-center">
+      <p>&copy; {{ currentYear }} SponsorAChild. All rights reserved.</p>
+      <p class="text-sm text-gray-400 mt-2">A demonstration project for NGO Management.</p>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,85 @@
+<div class="bg-gray-50 min-h-screen font-sans flex flex-col">
+  <!-- Header -->
+  <header class="bg-white shadow-md sticky top-0 z-50">
+    <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+      <a routerLink="/home" class="flex items-center space-x-2">
+        <div class="w-10 h-10">
+           <app-3d-logo></app-3d-logo>
+        </div>
+        <span class="text-xl font-bold text-gray-800 tracking-wide">SponsorAChild</span>
+      </a>
+      <div class="flex items-center space-x-4">
+        <a routerLink="/home" class="text-gray-600 hover:text-blue-600 font-medium">Home</a>
+        <a routerLink="/admin-login" class="text-gray-600 hover:text-blue-600 font-medium">Admin Login</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow flex items-center">
+    <div class="w-full py-12 px-4">
+      <div class="max-w-md w-full mx-auto bg-white p-8 border border-gray-200 rounded-xl shadow-lg">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-900">Register as a Donor</h2>
+            <p class="text-gray-600 mt-2">Create an account to manage your support.</p>
+        </div>
+        <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+            <div class="space-y-5">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                    <input id="name" type="text" formControlName="name" class="mt-1 block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                    @if (registrationForm.get('name')?.invalid && (registrationForm.get('name')?.dirty || registrationForm.get('name')?.touched)) {
+                        <p class="mt-1 text-xs text-red-600">Full name is required.</p>
+                    }
+                </div>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                    <input id="email" type="email" formControlName="email" class="mt-1 block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                    @if (registrationForm.get('email')?.invalid && (registrationForm.get('email')?.dirty || registrationForm.get('email')?.touched)) {
+                        <p class="mt-1 text-xs text-red-600">Please enter a valid email address.</p>
+                    }
+                </div>
+                <div>
+                    <label for="mobileNumber" class="block text-sm font-medium text-gray-700">Mobile Number</label>
+                    <input id="mobileNumber" type="tel" formControlName="mobileNumber" class="mt-1 block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                    @if (registrationForm.get('mobileNumber')?.invalid && (registrationForm.get('mobileNumber')?.dirty || registrationForm.get('mobileNumber')?.touched)) {
+                        <p class="mt-1 text-xs text-red-600">Mobile number is required.</p>
+                    }
+                </div>
+                 <div>
+                    <label for="address" class="block text-sm font-medium text-gray-700">Address</label>
+                    <input id="address" type="text" formControlName="address" class="mt-1 block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                    @if (registrationForm.get('address')?.invalid && (registrationForm.get('address')?.dirty || registrationForm.get('address')?.touched)) {
+                        <p class="mt-1 text-xs text-red-600">Address is required.</p>
+                    }
+                </div>
+                 <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <input id="password" type="password" formControlName="password" class="mt-1 block w-full px-4 py-2.5 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                    @if (registrationForm.get('password')?.invalid && (registrationForm.get('password')?.dirty || registrationForm.get('password')?.touched)) {
+                        <p class="mt-1 text-xs text-red-600">Password must be at least 6 characters long.</p>
+                    }
+                </div>
+            </div>
+
+            <div class="mt-8">
+                <button type="submit" [disabled]="registrationForm.invalid" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-transform transform hover:scale-105">
+                    Register
+                </button>
+            </div>
+        </form>
+        @if (submissionMessage()) {
+            <p class="mt-4 text-center text-green-600">{{ submissionMessage() }}</p>
+        }
+      </div>
+    </div>
+  </main>
+  
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-8">
+    <div class="container mx-auto px-6 text-center">
+      <p>&copy; {{ currentYear }} SponsorAChild. All rights reserved.</p>
+      <p class="text-sm text-gray-400 mt-2">A demonstration project for NGO Management.</p>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,55 @@
+{% extends 'core/admin/base.html' %}
+{% block title %}Inventory - Admin{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 transition-colors duration-300">Inventory Management</h1>
+    <a href="{% url 'inventory_create' %}" class="w-full sm:w-auto px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg shadow hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300 text-center sm:text-left">
+      Add New Item
+    </a>
+  </div>
+  
+  
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-colors duration-300">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th scope="col" class="px-3 sm:px-6 py-3">Item Name</th>
+            <th scope="col" class="px-3 sm:px-6 py-3 hidden sm:table-cell">Category</th>
+            <th scope="col" class="px-3 sm:px-6 py-3">Quantity</th>
+            <th scope="col" class="px-3 sm:px-6 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in inventory %}
+            <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+              <th scope="row" class="px-3 sm:px-6 py-4 font-medium text-gray-900 dark:text-gray-100">
+                <div class="flex flex-col">
+                  <span class="break-words">{{ item.name }}</span>
+                  <span class="text-xs text-gray-500 dark:text-gray-400 sm:hidden mt-1">Category: {{ item.category }}</span>
+                </div>
+              </th>
+              <td class="px-3 sm:px-6 py-4 hidden sm:table-cell">{{ item.category }}</td>
+              <td class="px-3 sm:px-6 py-4 {% if item.is_low_stock %}text-red-600 dark:text-red-400 font-semibold{% endif %}">{{ item.quantity }}</td>
+              <td class="px-3 sm:px-6 py-4">
+                <div class="flex flex-col sm:flex-row gap-2 sm:gap-0">
+                  <a href="{% url 'inventory_edit' item.id %}" class="font-medium text-blue-600 dark:text-blue-400 hover:underline text-sm sm:text-base">Edit</a>
+                  <a href="{% url 'inventory_update_stock' item.id %}" class="font-medium text-green-600 dark:text-green-400 hover:underline text-sm sm:text-base sm:ml-3">Update</a>
+                  <a href="{% url 'inventory_delete' item.id %}" class="font-medium text-red-600 dark:text-red-400 hover:underline text-sm sm:text-base sm:ml-3">Delete</a>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4" class="text-center py-8 text-gray-500 dark:text-gray-400">No inventory items found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

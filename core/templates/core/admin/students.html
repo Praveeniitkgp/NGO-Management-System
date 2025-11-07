@@ -1,0 +1,80 @@
+{% extends 'core/admin/base.html' %}
+{% block title %}Students - Admin{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 transition-colors duration-300">Student Management</h1>
+    <a href="{% url 'student_create' %}" class="w-full sm:w-auto px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg shadow hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300 text-center sm:text-left">
+      Add New Student
+    </a>
+  </div>
+  
+  
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-colors duration-300">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th scope="col" class="px-3 sm:px-6 py-3">Name</th>
+            <th scope="col" class="px-3 sm:px-6 py-3 hidden sm:table-cell">Age</th>
+            <th scope="col" class="px-3 sm:px-6 py-3">Grade</th>
+            <th scope="col" class="px-3 sm:px-6 py-3 hidden md:table-cell">Performance</th>
+            <th scope="col" class="px-3 sm:px-6 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for student in students %}
+            <tr class="bg-white dark:bg-gray-800 border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200">
+              <th scope="row" class="px-3 sm:px-6 py-4 font-medium text-gray-900 dark:text-gray-100">
+                <div class="flex flex-col">
+                  <div class="flex items-center space-x-2">
+                    {% if student.sponsorship_status == 'Sponsored' %}
+                      <svg class="w-4 h-4 sm:w-5 sm:h-5 text-green-600 dark:text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                      </svg>
+                    {% endif %}
+                    <span class="break-words">{{ student.name }}</span>
+                  </div>
+                  <span class="text-xs text-gray-500 dark:text-gray-400 sm:hidden mt-1">Age: {{ student.age }}</span>
+                  <span class="text-xs text-gray-500 dark:text-gray-400 md:hidden mt-1">
+                    <span class="px-2 py-0.5 font-semibold text-xs rounded-full 
+                      {% if student.performance == 'Excellent' %}bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300
+                      {% elif student.performance == 'Good' %}bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300
+                      {% elif student.performance == 'Average' %}bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300
+                      {% else %}bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300{% endif %}">
+                      {{ student.performance }}
+                    </span>
+                  </span>
+                </div>
+              </th>
+              <td class="px-3 sm:px-6 py-4 hidden sm:table-cell">{{ student.age }}</td>
+              <td class="px-3 sm:px-6 py-4">{{ student.class_name }}</td>
+              <td class="px-3 sm:px-6 py-4 hidden md:table-cell">
+                <span class="px-2 py-1 font-semibold leading-tight text-xs rounded-full 
+                  {% if student.performance == 'Excellent' %}bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-300
+                  {% elif student.performance == 'Good' %}bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-300
+                  {% elif student.performance == 'Average' %}bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300
+                  {% else %}bg-red-100 dark:bg-red-900/50 text-red-800 dark:text-red-300{% endif %}">
+                  {{ student.performance }}
+                </span>
+              </td>
+              <td class="px-3 sm:px-6 py-4">
+                <div class="flex flex-col sm:flex-row gap-2 sm:gap-0">
+                  <a href="{% url 'student_edit' student.id %}" class="font-medium text-blue-600 dark:text-blue-400 hover:underline text-sm sm:text-base">Edit</a>
+                  <a href="{% url 'student_delete' student.id %}" class="font-medium text-red-600 dark:text-red-400 hover:underline text-sm sm:text-base sm:ml-3">Delete</a>
+                </div>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="5" class="text-center py-8 text-gray-500 dark:text-gray-400">No students found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

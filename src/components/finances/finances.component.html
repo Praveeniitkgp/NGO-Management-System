@@ -1,0 +1,73 @@
+<div class="space-y-8">
+  <div class="flex justify-between items-center">
+    <h1 class="text-3xl font-bold text-gray-800">Financial Overview</h1>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Estimated Needs -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Estimated Needs per Class</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-500">
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+            <tr>
+              <th scope="col" class="px-4 py-2">Class Name</th>
+              <th scope="col" class="px-4 py-2">Item</th>
+              <th scope="col" class="px-4 py-2 text-right">Quantity</th>
+              <th scope="col" class="px-4 py-2 text-right">Cost/Item</th>
+              <th scope="col" class="px-4 py-2 text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for(item of classNeeds(); track item.id) {
+              <tr class="border-b">
+                <td class="px-4 py-2 font-medium">{{ item.className }}</td>
+                <td class="px-4 py-2">{{ item.item }}</td>
+                <td class="px-4 py-2 text-right">{{ item.quantity }}</td>
+                <td class="px-4 py-2 text-right">{{ item.costPerItem | currency:'USD':'symbol':'1.2-2' }}</td>
+                <td class="px-4 py-2 font-bold text-right">{{ item.total | currency:'USD':'symbol':'1.0-0' }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr class="bg-gray-50 font-semibold">
+              <td colspan="4" class="text-right px-4 py-2">Grand Total:</td>
+              <td class="px-4 py-2 text-right">{{ totalNeeds() | currency:'USD':'symbol':'1.0-0' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent Expenditures -->
+    <div class="bg-white rounded-xl shadow-lg p-6">
+      <h2 class="text-xl font-semibold text-gray-800 mb-4">Recent Expenditures</h2>
+       <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-500">
+          <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+            <tr>
+              <th scope="col" class="px-4 py-2">Item</th>
+              <th scope="col" class="px-4 py-2">Date</th>
+              <th scope="col" class="px-4 py-2">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+             @for(item of expenditures(); track item.id) {
+              <tr class="border-b">
+                <td class="px-4 py-2 font-medium">{{ item.item }}</td>
+                <td class="px-4 py-2">{{ item.date }}</td>
+                <td class="px-4 py-2">{{ item.amount | currency:'USD':'symbol':'1.0-0' }}</td>
+              </tr>
+            }
+          </tbody>
+          <tfoot>
+            <tr class="bg-gray-50 font-semibold">
+              <td colspan="2" class="text-right px-4 py-2">Total Expenditure:</td>
+              <td class="px-4 py-2">{{ totalExpenditure() | currency:'USD':'symbol':'1.0-0' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

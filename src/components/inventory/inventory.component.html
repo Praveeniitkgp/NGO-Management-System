@@ -1,0 +1,40 @@
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-3xl font-bold text-gray-800">Inventory Management</h1>
+    <button class="px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition-colors duration-300">
+      Add New Item
+    </button>
+  </div>
+  
+  <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left text-gray-500">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+          <tr>
+            <th scope="col" class="px-6 py-3">Item Name</th>
+            <th scope="col" class="px-6 py-3">Category</th>
+            <th scope="col" class="px-6 py-3">Quantity</th>
+            <th scope="col" class="px-6 py-3">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for(item of inventory(); track item.id) {
+            <tr class="bg-white border-b hover:bg-gray-50 transition-colors duration-200">
+              <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">{{ item.name }}</th>
+              <td class="px-6 py-4">{{ item.category }}</td>
+              <td class="px-6 py-4">{{ item.quantity }}</td>
+              <td class="px-6 py-4">
+                <a href="#" class="font-medium text-blue-600 hover:underline">Update Stock</a>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="4" class="text-center py-8 text-gray-500">No inventory items found.</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

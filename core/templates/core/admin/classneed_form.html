@@ -1,0 +1,61 @@
+{% extends 'core/admin/base.html' %}
+{% block title %}{{ action }} Class Need - Admin{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h1 class="text-3xl font-bold text-gray-800">{{ action }} Class Need</h1>
+    <a href="{% url 'admin_finances' %}" class="px-4 py-2 bg-gray-600 text-white rounded-lg shadow hover:bg-gray-700 transition-colors duration-300">
+      Back to Finances
+    </a>
+  </div>
+  
+  <div class="bg-white rounded-xl shadow-lg p-6">
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label for="class_name" class="block text-sm font-medium text-gray-700 mb-2">Class Name *</label>
+          <input type="text" id="class_name" name="class_name" required 
+                 value="{% if classneed %}{{ classneed.class_name }}{% endif %}"
+                 placeholder="e.g., Grade 1, Grade 2"
+                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        
+        <div>
+          <label for="item" class="block text-sm font-medium text-gray-700 mb-2">Item *</label>
+          <input type="text" id="item" name="item" required
+                 value="{% if classneed %}{{ classneed.item }}{% endif %}"
+                 placeholder="e.g., Textbooks, Uniforms, Notebooks"
+                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        
+        <div>
+          <label for="quantity_needed" class="block text-sm font-medium text-gray-700 mb-2">Quantity Needed *</label>
+          <input type="number" id="quantity_needed" name="quantity_needed" required min="0"
+                 value="{% if classneed %}{{ classneed.quantity_needed }}{% endif %}"
+                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        
+        <div>
+          <label for="cost_per_item" class="block text-sm font-medium text-gray-700 mb-2">Cost Per Item (₹) *</label>
+          <input type="number" id="cost_per_item" name="cost_per_item" required step="0.01" min="0"
+                 value="{% if classneed %}{{ classneed.cost_per_item }}{% endif %}"
+                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+      </div>
+      
+      <div class="flex justify-end space-x-4">
+        <a href="{% url 'admin_finances' %}" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors duration-300">
+          Cancel
+        </a>
+        <button type="submit" class="px-6 py-2 bg-green-600 text-white rounded-lg shadow hover:bg-green-700 transition-colors duration-300">
+          {{ action }} Class Need
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+

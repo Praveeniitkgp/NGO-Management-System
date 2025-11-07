@@ -1,0 +1,83 @@
+<div class="bg-gray-50 min-h-screen font-sans">
+  <!-- Header -->
+  <header class="bg-white shadow-md sticky top-0 z-50">
+    <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+      <a routerLink="/home" class="flex items-center space-x-2">
+        <div class="w-10 h-10">
+           <app-3d-logo></app-3d-logo>
+        </div>
+        <span class="text-xl font-bold text-gray-800 tracking-wide">SponsorAChild</span>
+      </a>
+      <div class="flex items-center space-x-4">
+        <a routerLink="/register-donor" class="bg-blue-600 text-white px-6 py-2 rounded-full hover:bg-blue-700 transition duration-300 transform hover:scale-105 shadow-sm">Register as Donor</a>
+        <a routerLink="/donor-login" class="text-gray-600 hover:text-blue-600 font-medium">Donor Login</a>
+        <a routerLink="/admin-login" class="text-gray-600 hover:text-blue-600 font-medium">Admin Login</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Hero Section -->
+  <main>
+    <section class="relative">
+        <div class="container mx-auto px-6 py-24 flex flex-col md:flex-row items-center gap-12">
+            <div class="md:w-1/2 text-center md:text-left">
+                <h1 class="text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight">
+                    Empowering Futures, <br class="hidden md:block"/> <span class="text-blue-600">One Child at a Time.</span>
+                </h1>
+                <p class="mt-6 text-lg text-gray-600 max-w-xl mx-auto md:mx-0">
+                    We believe in a world where every child has the opportunity to succeed. Join us in providing free, quality education to underprivileged children and help break the cycle of poverty.
+                </p>
+                <div class="mt-8 flex flex-col sm:flex-row justify-center md:justify-start gap-4">
+                    <a routerLink="/register-donor" class="bg-blue-600 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-blue-700 transition-transform transform hover:scale-105 shadow-lg">Sponsor a Child</a>
+                    <a href="#about" class="bg-white text-gray-800 px-8 py-3 rounded-full text-lg font-semibold hover:bg-gray-100 transition-colors shadow-lg border border-gray-200">Learn More</a>
+                </div>
+            </div>
+            <div class="md:w-1/2 flex justify-center items-center mt-10 md:mt-0">
+                 <div class="w-80 h-80 lg:w-96 lg:h-96">
+                    <app-3d-logo></app-3d-logo>
+                 </div>
+            </div>
+      </div>
+    </section>
+
+    <!-- About Us Section -->
+    <section id="about" class="bg-white py-20">
+      <div class="container mx-auto px-6 text-center">
+        <h2 class="text-3xl font-bold text-gray-800">Our Mission</h2>
+        <div class="mt-4 w-24 h-1 bg-blue-600 mx-auto"></div>
+        <p class="mt-6 text-gray-600 max-w-3xl mx-auto">
+          Our mission is to ensure every child has access to quality education, regardless of their background. We provide books, uniforms, meals, and a safe learning environment to help them thrive and build a better tomorrow for themselves and their communities. We are committed to transparency and ensuring that every donation makes a direct impact on a child's life.
+        </p>
+      </div>
+    </section>
+
+    <!-- Impact Section -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Our Impact In Numbers</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 text-center">
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="text-blue-600 text-5xl font-extrabold">1,200+</div>
+                    <p class="mt-2 text-gray-600 font-semibold text-lg">Students Educated</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="text-blue-600 text-5xl font-extrabold">50+</div>
+                    <p class="mt-2 text-gray-600 font-semibold text-lg">Schools Supported</p>
+                </div>
+                <div class="bg-white p-8 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
+                    <div class="text-blue-600 text-5xl font-extrabold">5,000+</div>
+                    <p class="mt-2 text-gray-600 font-semibold text-lg">Donors Worldwide</p>
+                </div>
+            </div>
+        </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-800 text-white py-8">
+    <div class="container mx-auto px-6 text-center">
+      <p>&copy; {{ currentYear }} SponsorAChild. All rights reserved.</p>
+      <p class="text-sm text-gray-400 mt-2">A demonstration project for NGO Management.</p>
+    </div>
+  </footer>
+</div>

@@ -1,0 +1,123 @@
+{% extends 'core/admin/base.html' %}
+{% block title %}Finances - Admin{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-100 transition-colors duration-300">Financial Overview</h1>
+    <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+      <a href="{% url 'expenditure_create' %}" class="w-full sm:w-auto px-4 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg shadow hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300 text-center">Add Expenditure</a>
+      <a href="{% url 'classneed_create' %}" class="w-full sm:w-auto px-4 py-2 bg-green-600 dark:bg-green-700 text-white rounded-lg shadow hover:bg-green-700 dark:hover:bg-green-600 transition-colors duration-300 text-center">Add Class Need</a>
+    </div>
+  </div>
+  
+  <!-- Financial Summary Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-colors duration-300">
+      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Donations</h2>
+      <p class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-2">₹{{ total_donations|floatformat:0 }}</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-colors duration-300">
+      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Expenditures</h2>
+      <p class="text-2xl font-bold text-red-600 dark:text-red-400 mt-2">₹{{ total_expenditure|floatformat:0 }}</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-colors duration-300 {% if available_funds < 0 %}bg-red-50 dark:bg-red-900/20{% elif available_funds < 10000 %}bg-yellow-50 dark:bg-yellow-900/20{% else %}bg-green-50 dark:bg-green-900/20{% endif %}">
+      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400">Available Funds</h2>
+      <p class="text-2xl font-bold {% if available_funds < 0 %}text-red-600 dark:text-red-400{% elif available_funds < 10000 %}text-yellow-600 dark:text-yellow-400{% else %}text-green-600 dark:text-green-400{% endif %} mt-2">₹{{ available_funds|floatformat:0 }}</p>
+    </div>
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-colors duration-300">
+      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400">Estimated Needs</h2>
+      <p class="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">₹{{ total_needs|floatformat:0 }}</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <!-- Estimated Needs -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-colors duration-300">
+      <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Estimated Needs per Class</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <thead class="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-700">
+            <tr>
+              <th scope="col" class="px-4 py-2">Class Name</th>
+              <th scope="col" class="px-4 py-2">Item</th>
+              <th scope="col" class="px-4 py-2 text-right">Quantity</th>
+              <th scope="col" class="px-4 py-2 text-right">Cost/Item</th>
+              <th scope="col" class="px-4 py-2 text-right">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in class_needs %}
+              <tr class="border-b dark:border-gray-700">
+                <td class="px-4 py-2 font-medium text-gray-900 dark:text-gray-100">{{ item.class_name }}</td>
+                <td class="px-4 py-2">
+                  {{ item.item }}
+                  <div class="mt-1 space-x-2">
+                    <a href="{% url 'classneed_edit' item.id %}" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">Edit</a>
+                    <a href="{% url 'classneed_delete' item.id %}" class="text-xs text-red-600 dark:text-red-400 hover:underline">Delete</a>
+                  </div>
+                </td>
+                <td class="px-4 py-2 text-right">{{ item.quantity_needed }}</td>
+                <td class="px-4 py-2 text-right">₹{{ item.cost_per_item|floatformat:2 }}</td>
+                <td class="px-4 py-2 font-bold text-right text-gray-900 dark:text-gray-100">₹{{ item.total|floatformat:0 }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="5" class="text-center py-4 text-gray-500 dark:text-gray-400">No class needs found.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr class="bg-gray-50 dark:bg-gray-700 font-semibold">
+              <td colspan="4" class="text-right px-4 py-2 text-gray-900 dark:text-gray-100">Grand Total:</td>
+              <td class="px-4 py-2 text-right text-gray-900 dark:text-gray-100">₹{{ total_needs|floatformat:0 }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+
+    <!-- Recent Expenditures -->
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-colors duration-300">
+      <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-100 mb-4">Recent Expenditures</h2>
+       <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+          <thead class="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gray-50 dark:bg-gray-700">
+            <tr>
+              <th scope="col" class="px-4 py-2">Item</th>
+              <th scope="col" class="px-4 py-2">Date</th>
+              <th scope="col" class="px-4 py-2">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in expenditures %}
+              <tr class="border-b dark:border-gray-700">
+                <td class="px-4 py-2 font-medium text-gray-900 dark:text-gray-100">
+                  {{ item.description }}
+                  <div class="mt-1 space-x-2">
+                    <a href="{% url 'expenditure_edit' item.id %}" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">Edit</a>
+                    <a href="{% url 'expenditure_delete' item.id %}" class="text-xs text-red-600 dark:text-red-400 hover:underline">Delete</a>
+                  </div>
+                </td>
+                <td class="px-4 py-2">{{ item.date }}</td>
+                <td class="px-4 py-2 text-gray-900 dark:text-gray-100">₹{{ item.amount|floatformat:0 }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="3" class="text-center py-4 text-gray-500 dark:text-gray-400">No expenditures found.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr class="bg-gray-50 dark:bg-gray-700 font-semibold">
+              <td colspan="2" class="text-right px-4 py-2 text-gray-900 dark:text-gray-100">Total Expenditure:</td>
+              <td class="px-4 py-2 text-gray-900 dark:text-gray-100">₹{{ total_expenditure|floatformat:0 }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

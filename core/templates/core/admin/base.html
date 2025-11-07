@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en" class="">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Admin - BrightFutures{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        }
+    </script>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <script>
+        // Initialize dark mode from localStorage
+        (function() {
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            if (darkMode) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        })();
+        
+        function toggleDarkMode() {
+            const html = document.documentElement;
+            const isDark = html.classList.contains('dark');
+            
+            if (isDark) {
+                html.classList.remove('dark');
+                localStorage.setItem('darkMode', 'false');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('darkMode', 'true');
+            }
+            
+            // Update button icon
+            updateDarkModeIcon();
+        }
+        
+        function updateDarkModeIcon() {
+            const isDark = document.documentElement.classList.contains('dark');
+            const icons = document.querySelectorAll('.dark-mode-icon');
+            icons.forEach(icon => {
+                if (isDark) {
+                    // Show sun icon (light mode)
+                    icon.innerHTML = `
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                    `;
+                } else {
+                    // Show moon icon (dark mode)
+                    icon.innerHTML = `
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                        </svg>
+                    `;
+                }
+            });
+        }
+        
+        // Initialize icon on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDarkModeIcon();
+        });
+        
+        // Session timeout management
+        (function() {
+            let lastActivityTime = Date.now();
+            const SESSION_TIMEOUT = 3600000; // 1 hour in milliseconds
+            let sessionCheckInterval = null;
+            let activityCheckInterval = null;
+            let wasLoggedIn = true; // Admin base template always has logged-in admin
+            let modalShown = false; // Prevent showing modal multiple times
+            let userType = 'admin'; // Admin base template always has admin
+            
+            // Track user activity
+            const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
+            events.forEach(event => {
+                document.addEventListener(event, function() {
+                    lastActivityTime = Date.now();
+                }, true);
+            });
+            
+            // Check session validity periodically
+            function checkSession() {
+                return fetch('{% url "check_session" %}', {
+                    method: 'GET',
+                    credentials: 'same-origin',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Update user type from response if available
+                    if (data.user_type) {
+                        userType = data.user_type;
+                    }
+                    
+                    if (!data.valid && wasLoggedIn && !modalShown) {
+                        // Session expired - user was logged in but now session is invalid
+                        wasLoggedIn = false; // Prevent further checks
+                        showSessionExpiryModal();
+                        if (sessionCheckInterval) {
+                            clearInterval(sessionCheckInterval);
+                            sessionCheckInterval = null;
+                        }
+                        if (activityCheckInterval) {
+                            clearInterval(activityCheckInterval);
+                            activityCheckInterval = null;
+                        }
+                    } else if (data.valid) {
+                        // Session is still valid, update wasLoggedIn flag
+                        wasLoggedIn = true;
+                        // Update user type from response
+                        if (data.user_type) {
+                            userType = data.user_type;
+                        }
+                    }
+                    return data;
+                })
+                .catch(error => {
+                    console.error('Session check failed:', error);
+                    return { valid: false };
+                });
+            }
+            
+            // Check for inactivity
+            function checkInactivity() {
+                const now = Date.now();
+                const timeSinceLastActivity = now - lastActivityTime;
+                
+                if (timeSinceLastActivity >= SESSION_TIMEOUT && wasLoggedIn) {
+                    // Check if session is still valid on server
+                    checkSession();
+                }
+            }
+            
+            // Show session expiry modal
+            function showSessionExpiryModal() {
+                if (modalShown) return; // Prevent showing multiple times
+                modalShown = true;
+                
+                // Check if modal already exists
+                let modal = document.getElementById('sessionExpiryModal');
+                if (!modal) {
+                    // Determine login URL based on user type
+                    let loginUrl = '{% url "admin_login" %}'; // Default to admin
+                    if (userType === 'donor') {
+                        loginUrl = '{% url "donor_login" %}';
+                    } else if (userType === 'admin') {
+                        loginUrl = '{% url "admin_login" %}';
+                    }
+                    
+                    // Create modal
+                    modal = document.createElement('div');
+                    modal.id = 'sessionExpiryModal';
+                    modal.className = 'fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 dark:bg-opacity-70';
+                    modal.innerHTML = `
+                        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4 transform transition-all">
+                            <div class="p-6">
+                                <div class="flex items-center justify-center w-12 h-12 mx-auto rounded-full bg-yellow-100 dark:bg-yellow-900/50 mb-4">
+                                    <svg class="w-6 h-6 text-yellow-600 dark:text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                    </svg>
+                                </div>
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 text-center mb-2">Session Expired</h3>
+                                <p class="text-gray-600 dark:text-gray-300 text-center mb-6">Session expires login again</p>
+                                <div class="flex justify-center">
+                                    <button onclick="window.location.href='${loginUrl}'" class="px-6 py-2 bg-blue-600 dark:bg-blue-700 text-white rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                        Login Again
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(modal);
+                }
+                
+                // Show modal
+                modal.classList.remove('hidden');
+            }
+            
+            // Admin base template - admin is always logged in when this template is used
+            // Initialize session timeout monitoring
+            function initializeSessionTimeout() {
+                // Initial check to verify session is valid
+                checkSession().then(data => {
+                    if (data && data.valid) {
+                        // User is logged in, start monitoring
+                        sessionCheckInterval = setInterval(checkSession, 60000); // Check every minute
+                        activityCheckInterval = setInterval(checkInactivity, 60000); // Check inactivity every minute
+                        
+                        // Check on page visibility change
+                        document.addEventListener('visibilitychange', function visibilityHandler() {
+                            if (!document.hidden && wasLoggedIn) {
+                                // Page became visible, check session
+                                checkSession();
+                            }
+                        });
+                    } else {
+                        // Session was invalid from start
+                        wasLoggedIn = false;
+                    }
+                });
+            }
+            
+            // Initialize on page load
+            document.addEventListener('DOMContentLoaded', function() {
+                setTimeout(initializeSessionTimeout, 1000);
+            });
+        })();
+        
+        // Mobile menu toggle
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('adminSidebar');
+            const overlay = document.getElementById('mobileMenuOverlay');
+            if (sidebar && overlay) {
+                const isOpen = !sidebar.classList.contains('-translate-x-full');
+                if (isOpen) {
+                    sidebar.classList.add('-translate-x-full');
+                    overlay.classList.add('hidden');
+                    document.body.style.overflow = '';
+                } else {
+                    sidebar.classList.remove('-translate-x-full');
+                    overlay.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden';
+                }
+            }
+        }
+        
+        // Close mobile menu on window resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 768) {
+                const sidebar = document.getElementById('adminSidebar');
+                const overlay = document.getElementById('mobileMenuOverlay');
+                if (sidebar) sidebar.classList.remove('-translate-x-full');
+                if (overlay) overlay.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        });
+    </script>
+</head>
+<body class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300">
+    {% include 'core/message_modal.html' %}
+    <!-- Mobile Menu Overlay -->
+    <div id="mobileMenuOverlay" class="fixed inset-0 bg-black bg-opacity-50 z-40 hidden md:hidden" onclick="toggleMobileMenu()"></div>
+    
+    <div class="flex h-screen bg-gray-100 dark:bg-gray-900 font-sans transition-colors duration-300">
+        {% include 'core/admin/sidebar.html' %}
+        <div class="flex-1 flex flex-col overflow-hidden w-full md:w-auto">
+            <!-- Admin Header -->
+            <header class="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-300">
+                <div class="px-4 sm:px-6 py-4">
+                    <div class="flex items-center justify-between">
+                        <!-- Mobile Menu Button -->
+                        <button onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300" aria-label="Toggle menu">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                        </button>
+                        <div class="flex-1 flex justify-center md:justify-start md:ml-0">
+                            <h1 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-gray-100 text-center md:text-left">
+                                Welcome, <span class="text-blue-600 dark:text-blue-400 font-bold">{{ admin_name|default:"Admin" }}</span>!
+                            </h1>
+                        </div>
+                        <div class="flex items-center space-x-2 sm:space-x-4">
+                            <button onclick="toggleDarkMode()" class="p-2 rounded-lg text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors duration-300" title="Toggle dark mode">
+                                <span class="dark-mode-icon">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                                    </svg>
+                                </span>
+                            </button>
+                            <a href="{% url 'home' %}" class="hidden sm:inline text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 font-medium text-sm sm:text-base">Home</a>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 dark:bg-gray-900 transition-colors duration-300">
+                <div class="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
+

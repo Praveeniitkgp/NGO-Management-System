@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Open book with heart icon -->
+  <g fill="#4285F4">
+    <!-- Open book pages -->
+    <path d="M20 45 L20 20 Q20 15 25 15 L39 15 Q44 15 44 20 L44 45 Q44 48 41 48 L23 48 Q20 48 20 45 Z" opacity="0.3"/>
+    <!-- Left page -->
+    <path d="M20 20 L20 45 L23 48 L25 45 L25 20 Q25 18 27 18 L31 18 Q33 18 33 20 L33 45 L35 48 L38 45 L38 20 Q38 18 36 18 L32 18 Q30 18 30 20 L30 45 L28 48 L25 45 L25 20 Q25 18 23 18 L27 18 Q29 18 29 20 Z"/>
+    <!-- Right page -->
+    <path d="M44 20 L44 45 L41 48 L39 45 L39 20 Q39 18 37 18 L33 18 Q31 18 31 20 L31 45 L29 48 L26 45 L26 20 Q26 18 28 18 L32 18 Q34 18 34 20 L34 45 L36 48 L39 45 L39 20 Q39 18 41 18 L37 18 Q35 18 35 20 Z"/>
+    <!-- Book spine -->
+    <path d="M30 15 L34 15 L34 48 L30 48 Z"/>
+    <!-- Heart shape above spine -->
+    <path d="M32 10 C30 8 27 8 25 10 C23 12 22 14 22 16 C22 18 23 20 25 22 L32 28 L39 22 C41 20 42 18 42 16 C42 14 41 12 39 10 C37 8 34 8 32 10 Z"/>
+  </g>
+</svg>
+

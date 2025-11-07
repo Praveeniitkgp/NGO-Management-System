@@ -1,0 +1,89 @@
+{% extends 'core/admin/base.html' %}
+{% block title %}Dashboard - Admin{% endblock %}
+
+{% block content %}
+<div class="p-4 sm:p-6 md:p-8">
+  <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-100 mb-6 transition-colors duration-300">Admin Dashboard</h1>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <!-- Total Students -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 flex flex-col justify-between transition-colors duration-300">
+      <div>
+        <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Students</h2>
+        <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{ total_students }}</p>
+      </div>
+      <div class="mt-4">
+        <p class="text-sm text-green-600 dark:text-green-400">{{ sponsored_students }} Sponsored</p>
+        <p class="text-sm text-yellow-600 dark:text-yellow-400">{{ unsponsored_students }} Need Sponsorship</p>
+      </div>
+    </div>
+
+    <!-- Total Donors -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors duration-300">
+      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Donors</h2>
+      <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{ total_donors }}</p>
+    </div>
+
+    <!-- Total Donations -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors duration-300">
+      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Donations</h2>
+      <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">₹{{ total_donations|floatformat:0 }}</p>
+    </div>
+
+    <!-- Available Funds -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors duration-300 {% if available_funds < 0 %}bg-red-50 dark:bg-red-900/20{% elif available_funds < 10000 %}bg-yellow-50 dark:bg-yellow-900/20{% else %}bg-green-50 dark:bg-green-900/20{% endif %}">
+      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400">Available Funds</h2>
+      <p class="text-3xl font-bold {% if available_funds < 0 %}text-red-600 dark:text-red-400{% elif available_funds < 10000 %}text-yellow-600 dark:text-yellow-400{% else %}text-green-600 dark:text-green-400{% endif %}">₹{{ available_funds|floatformat:0 }}</p>
+      <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Total: ₹{{ total_donations|floatformat:0 }} | Spent: ₹{{ total_expenditures|floatformat:0 }}</p>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
+    <!-- Inventory Status -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors duration-300">
+      <h2 class="text-sm font-medium text-gray-500 dark:text-gray-400">Inventory Status</h2>
+      <p class="text-3xl font-bold text-gray-900 dark:text-gray-100">{{ low_stock_items }}</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">items running low</p>
+    </div>
+  </div>
+
+  <div class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <!-- Recent Expenditures -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors duration-300">
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Recent Expenditures</h3>
+      <ul class="space-y-3">
+        {% for item in recent_expenditures %}
+          <li class="flex justify-between items-center border-b dark:border-gray-700 pb-2 last:border-0">
+            <div>
+              <p class="font-medium text-gray-700 dark:text-gray-300">{{ item.description }}</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ item.date }} - {{ item.category }}</p>
+            </div>
+            <p class="font-semibold text-red-600 dark:text-red-400">₹{{ item.amount|floatformat:2 }}</p>
+          </li>
+        {% empty %}
+          <li class="text-gray-500 dark:text-gray-400">No expenditures found.</li>
+        {% endfor %}
+      </ul>
+    </div>
+    
+    <!-- Urgent Class Needs -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 transition-colors duration-300">
+      <h3 class="text-lg font-semibold text-gray-800 dark:text-gray-100 mb-4">Urgent Class Needs</h3>
+      <ul class="space-y-3">
+        {% for item in class_needs %}
+          <li class="flex justify-between items-center border-b dark:border-gray-700 pb-2 last:border-0">
+            <div>
+              <p class="font-medium text-gray-700 dark:text-gray-300">{{ item.item }} ({{ item.class_name }})</p>
+              <p class="text-sm text-gray-500 dark:text-gray-400">{{ item.quantity_needed }} units needed</p>
+            </div>
+            <p class="font-semibold text-blue-600 dark:text-blue-400">₹{{ item.total|floatformat:2 }}</p>
+          </li>
+        {% empty %}
+          <li class="text-gray-500 dark:text-gray-400">No class needs found.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
