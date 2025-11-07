@@ -74,7 +74,7 @@ EMAIL_HOST_USER=$EMAIL_HOST_USER
 EMAIL_HOST_PASSWORD="$EMAIL_HOST_PASSWORD"
 EOF
 
-echo "✓ .env file configured successfully!"
+echo "[OK] .env file configured successfully!"
 echo ""
 echo "Configuration:"
 echo "  DEBUG=False"
