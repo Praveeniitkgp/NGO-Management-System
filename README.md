@@ -95,3 +95,4 @@ This project is open source and available for use.
 ---
 
 **Live Demo**: [https://praveenpatel.dev](https://praveenpatel.dev)
+
