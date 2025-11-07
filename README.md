@@ -31,8 +31,6 @@ A comprehensive web-based management system for NGOs to manage students, donors,
 - **Backend**: Django 4.2+
 - **Database**: SQLite (development) / PostgreSQL (production)
 - **Frontend**: Django Templates with Tailwind CSS
-- **Email Service**: Gmail API
-- **SMS Service**: Twilio
 
 ## Installation
 
