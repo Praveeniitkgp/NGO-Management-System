@@ -84,9 +84,7 @@ A comprehensive web-based management system for NGOs to manage students, donors,
 - Security headers enabled in production
 - SSL/HTTPS support
 
-## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## License
 
